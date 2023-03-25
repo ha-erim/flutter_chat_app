@@ -1,9 +1,11 @@
 import 'package:chat_app/widgets/auth/auth_form.dart';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+
 import 'package:flutter/material.dart';
-import 'package:chat_app/widgets/auth/auth_form.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -50,7 +52,7 @@ class _AuthScreenState extends State<AuthScreen> {
         'username': username,
         'email': email,
       });
-    } on PlatformException catch (err) {
+    } on FirebaseAuthException catch (err) {
       var message = 'An error ocucred, please check your credentials!';
 
       if (err.message != null) {
@@ -60,6 +62,9 @@ class _AuthScreenState extends State<AuthScreen> {
           .showSnackBar(
         SnackBar(
           content: Text(message),
+          backgroundColor: Theme.of(ctx)
+              .colorScheme
+              .error, // errorColor -> colorScheme.error
         ),
       );
     } catch (err) {
