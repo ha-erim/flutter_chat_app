@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter/material.dart';
 import 'package:chat_app/widgets/auth/auth_form.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -15,6 +16,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final _auth = FirebaseAuth.instance;
+  var _isLoading = false;
 
   void _submitAuthForm(
     String email,
@@ -26,13 +28,28 @@ class _AuthScreenState extends State<AuthScreen> {
     UserCredential authResult;
 
     try {
+      setState(() {
+        _isLoading = true;
+      });
       if (isLogin) {
         authResult = await _auth.signInWithEmailAndPassword(
-            email: email, password: password);
+          email: email,
+          password: password,
+        );
       } else {
         authResult = await _auth.createUserWithEmailAndPassword(
-            email: email, password: password);
+          email: email,
+          password: password,
+        );
       }
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(authResult.user!.uid)
+          .set({
+        'username': username,
+        'email': email,
+      });
     } on PlatformException catch (err) {
       var message = 'An error ocucred, please check your credentials!';
 
@@ -43,13 +60,13 @@ class _AuthScreenState extends State<AuthScreen> {
           .showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: Theme.of(ctx)
-              .colorScheme
-              .error, // errorColor -> colorScheme.error
         ),
       );
     } catch (err) {
       print(err);
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -59,6 +76,7 @@ class _AuthScreenState extends State<AuthScreen> {
       backgroundColor: Theme.of(context).primaryColor,
       body: AuthForm(
         _submitAuthForm,
+        _isLoading,
       ),
     );
   }

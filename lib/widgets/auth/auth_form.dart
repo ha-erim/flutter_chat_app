@@ -1,9 +1,15 @@
+import 'dart:isolate';
+
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter/material.dart';
 
 class AuthForm extends StatefulWidget {
-  AuthForm(this.submitFn);
+  AuthForm(
+    this.submitFn,
+    this.isLoading,
+  );
+  final bool isLoading;
   final void Function(
     String email,
     String password,
@@ -99,20 +105,23 @@ class _AuthFormState extends State<AuthForm> {
                   },
                 ),
                 SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: _trySubmit,
-                  child: Text(_isLogin ? 'Login' : 'SignUp'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _isLogin = !_isLogin;
-                    });
-                  },
-                  child: Text(_isLogin
-                      ? 'Create new account'
-                      : 'I already have an account'),
-                )
+                if (widget.isLoading) CircularProgressIndicator(),
+                if (!widget.isLoading)
+                  ElevatedButton(
+                    onPressed: _trySubmit,
+                    child: Text(_isLogin ? 'Login' : 'SignUp'),
+                  ),
+                if (!widget.isLoading)
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _isLogin = !_isLogin;
+                      });
+                    },
+                    child: Text(_isLogin
+                        ? 'Create new account'
+                        : 'I already have an account'),
+                  )
               ],
             ),
           ),
