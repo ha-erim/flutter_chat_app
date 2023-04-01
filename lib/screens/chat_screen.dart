@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:chat_app/widgets/auth/chat/messages.dart';
+import 'package:chat_app/widgets/auth/chat/new_message.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
@@ -39,38 +41,26 @@ class ChatScreen extends StatelessWidget {
           },
         )
       ]),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('chats')
-            .doc('ylQUyeTNevkd4jprr90t')
-            .collection('messages')
-            .snapshots(),
-        builder: (ctx, streamSnapshot) {
-          if (streamSnapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          final documents = streamSnapshot.data?.docs;
-          return ListView.builder(
-            itemCount: documents!.length, //add !
-            itemBuilder: (ctx, index) => Container(
-              padding: EdgeInsets.all(8),
-              child: Text(documents[index]['text']),
+      body: Container(
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: Messages(),
             ),
-          );
-        },
+            NewMessage(),
+          ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          FirebaseFirestore.instance
-              .collection('chats')
-              .doc('ylQUyeTNevkd4jprr90t')
-              .collection('messages')
-              .add({'text': 'This was added by clicking the button!'});
-        },
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   child: Icon(Icons.add),
+      //   onPressed: () {
+      //     FirebaseFirestore.instance
+      //         .collection('chats')
+      //         .doc('ylQUyeTNevkd4jprr90t')
+      //         .collection('messages')
+      //         .add({'text': 'This was added by clicking the button!'});
+      //   },
+      // ),
     );
   }
 }
